@@ -16,9 +16,11 @@ import {ProductDetailModal} from './components/ProductDetailModal';
 import {SafeImage} from './components/SafeImage';
 import {WinSmileLogo} from './components/WinSmileLogo';
 import {
+  AGE_GROUP_OPTIONS,
   DEFAULT_STORE_SETTINGS,
   HERO_IMAGE_PATH,
   INITIAL_PRODUCTS,
+  SKILL_CATEGORY_OPTIONS,
 } from './config/storeDefaults';
 import {formatDzd} from './data/wilayas';
 import type {
@@ -26,21 +28,14 @@ import type {
   CartItem,
   Order,
   Product,
+  SkillCategory,
   StoreSettings,
 } from './types/store';
 
 const CART_STORAGE_KEY = 'montessori_dz_cart_v1';
 
-type FilterOption = 'all' | 'bundles' | AgeGroup;
-
-const FILTER_TABS: {id: FilterOption; label: string}[] = [
-  {id: 'all', label: 'جميع الألعاب'},
-  {id: 'bundles', label: 'الباقات التعليمية'},
-  {id: '0–1 سنة', label: '0–1 سنة'},
-  {id: '1–2 سنوات', label: '1–2 سنوات'},
-  {id: '2–4 سنوات', label: '2–4 سنوات'},
-  {id: '4–6 سنوات', label: '4–6 سنوات'},
-];
+type CategoryFilter = 'all' | SkillCategory;
+type AgeFilter = 'all' | AgeGroup;
 
 export default function App() {
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
@@ -48,7 +43,8 @@ export default function App() {
   const [loadingStore, setLoadingStore] = useState(true);
 
   const [activePage, setActivePage] = useState<ActivePage>('store');
-  const [activeFilter, setActiveFilter] = useState<FilterOption>('all');
+  const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>('all');
+  const [selectedAgeGroup, setSelectedAgeGroup] = useState<AgeFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -109,24 +105,35 @@ export default function App() {
   const filteredProducts = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     return products.filter((product) => {
-      if (activeFilter === 'bundles' && product.itemType !== 'bundle') {
-        return false;
+      if (selectedCategory !== 'all') {
+        if (selectedCategory === 'رزم تعليمية') {
+          if (
+            product.skillCategory !== 'رزم تعليمية' &&
+            product.itemType !== 'bundle'
+          ) {
+            return false;
+          }
+        } else if (product.skillCategory !== selectedCategory) {
+          return false;
+        }
       }
-      if (
-        activeFilter !== 'all' &&
-        activeFilter !== 'bundles' &&
-        product.ageGroup !== activeFilter
-      ) {
+      if (selectedAgeGroup !== 'all' && product.ageGroup !== selectedAgeGroup) {
         return false;
       }
       if (!query) return true;
       return (
         product.name.toLowerCase().includes(query) ||
         product.skillCategory.toLowerCase().includes(query) ||
+        product.ageGroup.toLowerCase().includes(query) ||
         product.educationalBenefit.toLowerCase().includes(query)
       );
     });
-  }, [products, activeFilter, searchQuery]);
+  }, [products, selectedCategory, selectedAgeGroup, searchQuery]);
+
+  const hasActiveFilters =
+    selectedCategory !== 'all' ||
+    selectedAgeGroup !== 'all' ||
+    searchQuery.trim() !== '';
 
   const bundles = useMemo(
     () => products.filter((p) => p.itemType === 'bundle'),
@@ -245,7 +252,8 @@ export default function App() {
                     <button
                       type="button"
                       onClick={() => {
-                        setActiveFilter('bundles');
+                        setSelectedCategory('رزم تعليمية');
+                        setSelectedAgeGroup('all');
                         handleNavigate('store', 'bundles');
                       }}
                       className="px-6 py-3 rounded-xl bg-white border border-[#DCD3C4] hover:bg-[#F2EDE4] text-[#231F1B] text-sm font-semibold transition-colors whitespace-nowrap cursor-pointer"
@@ -333,31 +341,113 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Interactive Segmented Filter Tabs */}
-              <div
-                role="tablist"
-                aria-label="تصفية الألعاب حسب العمر والباقات"
-                className="flex flex-wrap items-center gap-1.5 p-1.5 bg-[#F2EDE4] rounded-xl w-fit max-w-full"
-              >
-                {FILTER_TABS.map((tab) => {
-                  const active = activeFilter === tab.id;
-                  return (
+              {/* Organized Category & Age Group Horizontal Filter Bar */}
+              <div className="bg-white border border-[#E5DDD0] rounded-2xl p-4 sm:p-5 space-y-4">
+                {/* Category / Skill Filter Row */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs font-bold text-[#6B6257]">
+                      تصفية حسب الصنف
+                    </span>
+                    {hasActiveFilters && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedCategory('all');
+                          setSelectedAgeGroup('all');
+                          setSearchQuery('');
+                        }}
+                        className="text-xs font-semibold text-[#4A5D3F] hover:underline cursor-pointer whitespace-nowrap"
+                      >
+                        مسح الفلاتر
+                      </button>
+                    )}
+                  </div>
+
+                  <div
+                    role="tablist"
+                    aria-label="تصفية الألعاب حسب الصنف"
+                    className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0"
+                  >
                     <button
-                      key={tab.id}
                       type="button"
                       role="tab"
-                      aria-selected={active}
-                      onClick={() => setActiveFilter(tab.id)}
-                      className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-                        active
-                          ? 'bg-white text-[#231F1B] shadow-sm'
-                          : 'text-[#5A5248] hover:text-[#231F1B]'
+                      aria-selected={selectedCategory === 'all'}
+                      onClick={() => setSelectedCategory('all')}
+                      className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer border ${
+                        selectedCategory === 'all'
+                          ? 'bg-[#4A5D3F] text-white border-[#4A5D3F]'
+                          : 'bg-[#FAF8F4] text-[#4E463D] border-[#E5DDD0] hover:bg-[#F2EDE4]'
                       }`}
                     >
-                      {tab.label}
+                      الكل
                     </button>
-                  );
-                })}
+                    {SKILL_CATEGORY_OPTIONS.map((category) => {
+                      const active = selectedCategory === category;
+                      return (
+                        <button
+                          key={category}
+                          type="button"
+                          role="tab"
+                          aria-selected={active}
+                          onClick={() => setSelectedCategory(category)}
+                          className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer border ${
+                            active
+                              ? 'bg-[#4A5D3F] text-white border-[#4A5D3F]'
+                              : 'bg-[#FAF8F4] text-[#4E463D] border-[#E5DDD0] hover:bg-[#F2EDE4]'
+                          }`}
+                        >
+                          {category}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Age Group Filter Row */}
+                <div className="pt-3 border-t border-[#F0EAE0] space-y-2">
+                  <span className="block text-xs font-bold text-[#6B6257]">
+                    تصفية حسب الفئة العمرية
+                  </span>
+                  <div
+                    role="tablist"
+                    aria-label="تصفية الألعاب حسب الفئة العمرية"
+                    className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0"
+                  >
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={selectedAgeGroup === 'all'}
+                      onClick={() => setSelectedAgeGroup('all')}
+                      className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer border ${
+                        selectedAgeGroup === 'all'
+                          ? 'bg-[#231F1B] text-white border-[#231F1B]'
+                          : 'bg-[#FAF8F4] text-[#4E463D] border-[#E5DDD0] hover:bg-[#F2EDE4]'
+                      }`}
+                    >
+                      الكل
+                    </button>
+                    {AGE_GROUP_OPTIONS.map((age) => {
+                      const active = selectedAgeGroup === age;
+                      return (
+                        <button
+                          key={age}
+                          type="button"
+                          role="tab"
+                          aria-selected={active}
+                          onClick={() => setSelectedAgeGroup(age)}
+                          className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer border ${
+                            active
+                              ? 'bg-[#231F1B] text-white border-[#231F1B]'
+                              : 'bg-[#FAF8F4] text-[#4E463D] border-[#E5DDD0] hover:bg-[#F2EDE4]'
+                          }`}
+                        >
+                          {age}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
               {/* Spacious 3-Column Product Grid */}
@@ -373,12 +463,13 @@ export default function App() {
               ) : filteredProducts.length === 0 ? (
                 <div className="bg-white border border-[#E5DDD0] rounded-2xl p-12 text-center space-y-3">
                   <p className="font-display text-lg font-bold text-[#231F1B]">
-                    لم نجد ألعاباً مطابقة لبحثك
+                    لم نجد ألعاباً مطابقة للتصفية المختارة
                   </p>
                   <button
                     type="button"
                     onClick={() => {
-                      setActiveFilter('all');
+                      setSelectedCategory('all');
+                      setSelectedAgeGroup('all');
                       setSearchQuery('');
                     }}
                     className="px-4 py-2 rounded-lg bg-[#4A5D3F] text-white text-xs font-bold cursor-pointer"

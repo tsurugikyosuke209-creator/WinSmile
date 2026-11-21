@@ -33,6 +33,48 @@ function createInitialDb(): StoreDatabase {
   };
 }
 
+const LEGACY_AGE_MAP: Record<string, Product['ageGroup']> = {
+  '0–1 سنة': 'أقل من سنة (0-12 شهر)',
+  '1–2 سنوات': 'سنتان (1-2 سنة)',
+  '2–4 سنوات': '3 سنوات (2-3 سنوات)',
+  '4–6 سنوات': '5 سنوات فما فوق (+5 سنوات)',
+};
+
+const LEGACY_SKILL_MAP: Record<string, Product['skillCategory']> = {
+  'الحسّية': 'ألعاب حسية',
+  'الحركية الدقيقة': 'مهارات حركية دقيقة',
+  'اللغة': 'لغة وحروف',
+  'الرياضيات': 'رياضيات وأرقام',
+  'الحياة العملية': 'حياة عملية واستقلالية',
+};
+
+function migrateProducts(products: Product[]): {products: Product[]; changed: boolean} {
+  let changed = false;
+  const next = products.map((p) => {
+    const rawAge = p.ageGroup as string;
+    const rawSkill = p.skillCategory as string;
+    const mappedAge = LEGACY_AGE_MAP[rawAge];
+    let mappedSkill = LEGACY_SKILL_MAP[rawSkill];
+    if (p.id === 'mnt-knobbed-cylinders' && rawSkill === 'الحركية الدقيقة') {
+      mappedSkill = 'ألعاب ذكاء ومنطق';
+    }
+    if (p.itemType === 'bundle' && rawSkill === 'الحياة العملية') {
+      mappedSkill = 'رزم تعليمية';
+    }
+    const nextAge =
+      p.id === 'mnt-tactile-letters' && rawAge === '4–6 سنوات'
+        ? '4 سنوات (3-4 سنوات)'
+        : mappedAge || p.ageGroup;
+    const nextSkill = mappedSkill || p.skillCategory;
+    if (nextAge !== p.ageGroup || nextSkill !== p.skillCategory) {
+      changed = true;
+      return {...p, ageGroup: nextAge, skillCategory: nextSkill};
+    }
+    return p;
+  });
+  return {products: next, changed};
+}
+
 export function readDb(): StoreDatabase {
   ensureDirectories();
   if (!fs.existsSync(DB_PATH)) {
@@ -43,8 +85,12 @@ export function readDb(): StoreDatabase {
   try {
     const raw = fs.readFileSync(DB_PATH, 'utf8');
     const parsed = JSON.parse(raw) as Partial<StoreDatabase>;
-    return {
-      products: Array.isArray(parsed.products) ? parsed.products : INITIAL_PRODUCTS,
+    const rawProducts = Array.isArray(parsed.products)
+      ? parsed.products
+      : INITIAL_PRODUCTS;
+    const {products, changed} = migrateProducts(rawProducts);
+    const db: StoreDatabase = {
+      products,
       settings: parsed.settings
         ? {...DEFAULT_STORE_SETTINGS, ...parsed.settings}
         : DEFAULT_STORE_SETTINGS,
@@ -52,6 +98,10 @@ export function readDb(): StoreDatabase {
       adminPasswordHash:
         typeof parsed.adminPasswordHash === 'string' ? parsed.adminPasswordHash : null,
     };
+    if (changed) {
+      writeDb(db);
+    }
+    return db;
   } catch {
     const fallback = createInitialDb();
     writeDb(fallback);

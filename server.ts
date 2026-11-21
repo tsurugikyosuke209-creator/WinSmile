@@ -4,6 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import express from 'express';
 import {createServer as createViteServer} from 'vite';
+import {
+  AGE_GROUP_OPTIONS,
+  SKILL_CATEGORY_OPTIONS,
+} from './src/config/storeDefaults';
 import {ALGERIAN_WILAYAS, isSafeHttpOrAssetUrl} from './src/data/wilayas';
 import type {
   AgeGroup,
@@ -28,19 +32,8 @@ import {readDb, saveUploadedBase64Image, UPLOADS_DIR, writeDb} from './server/db
 
 const PORT = 3000;
 
-const VALID_AGE_GROUPS: AgeGroup[] = [
-  '0–1 سنة',
-  '1–2 سنوات',
-  '2–4 سنوات',
-  '4–6 سنوات',
-];
-const VALID_SKILLS: SkillCategory[] = [
-  'الحسّية',
-  'الحركية الدقيقة',
-  'اللغة',
-  'الرياضيات',
-  'الحياة العملية',
-];
+const VALID_AGE_GROUPS: AgeGroup[] = AGE_GROUP_OPTIONS;
+const VALID_SKILLS: SkillCategory[] = SKILL_CATEGORY_OPTIONS;
 const VALID_AVAILABILITY: AvailabilityStatus[] = ['in_stock', 'out_of_stock'];
 const VALID_ITEM_TYPES: ItemType[] = ['single', 'bundle'];
 const VALID_ORDER_STATUSES: OrderStatus[] = [

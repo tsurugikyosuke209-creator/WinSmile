@@ -1,4 +1,22 @@
-import {Product, StoreSettings} from '../types/store';
+import type {AgeGroup, Product, SkillCategory, StoreSettings} from '../types/store';
+
+export const SKILL_CATEGORY_OPTIONS: SkillCategory[] = [
+  'ألعاب ذكاء ومنطق',
+  'ألعاب حسية',
+  'مهارات حركية دقيقة',
+  'رياضيات وأرقام',
+  'لغة وحروف',
+  'حياة عملية واستقلالية',
+  'رزم تعليمية',
+];
+
+export const AGE_GROUP_OPTIONS: AgeGroup[] = [
+  'أقل من سنة (0-12 شهر)',
+  'سنتان (1-2 سنة)',
+  '3 سنوات (2-3 سنوات)',
+  '4 سنوات (3-4 سنوات)',
+  '5 سنوات فما فوق (+5 سنوات)',
+];
 
 /**
  * ============================================================================
@@ -32,8 +50,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'البرج الوردي المونتيسوري (10 مكعبات)',
     priceDzd: 4800,
     imageUrl: '/src/assets/images/product_pink_tower_1795276105659.jpg',
-    ageGroup: '2–4 سنوات',
-    skillCategory: 'الحسّية',
+    ageGroup: '3 سنوات (2-3 سنوات)',
+    skillCategory: 'ألعاب حسية',
     educationalBenefit:
       'ينمّي التمييز البصري للأحجام والأبعاد الثلاثية، ويعزّز التآزر البصري الحركي والدقة العضلية لليد، كما يهيّئ الطفل بطريقة غير مباشرة لمفاهيم التسلسل والنظام العشري في الرياضيات.',
     availability: 'in_stock',
@@ -45,10 +63,10 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'لوح الأسطوانات الخشبية بمقابض',
     priceDzd: 3600,
     imageUrl: '/src/assets/images/product_knobbed_cylinders_1795276107065.jpg',
-    ageGroup: '1–2 سنوات',
-    skillCategory: 'الحركية الدقيقة',
+    ageGroup: 'سنتان (1-2 سنة)',
+    skillCategory: 'ألعاب ذكاء ومنطق',
     educationalBenefit:
-      'يدرّب مسكة الأصابع الثلاثية (مسكة القلم) تمهيداً للكتابة، ويطوّر قدرة الطفل على المقارنة بين السماكة والارتفاع مع تصحيح الخطأ ذاتياً دون تدخل الكبار.',
+      'يدرّب مسكة الأصابع الثلاثية (مسكة القلم) تمهيداً للكتابة، ويطوّر قدرة الطفل على التفكير المنطقي والمقارنة بين السماكة والارتفاع مع تصحيح الخطأ ذاتياً دون تدخل الكبار.',
     availability: 'in_stock',
     itemType: 'single',
     createdAt: '2026-11-02T09:00:00.000Z',
@@ -58,8 +76,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'صندوق ديمومة الأشياء مع الكرة الخشبية',
     priceDzd: 3200,
     imageUrl: '/src/assets/images/product_permanence_box_1795276105456.jpg',
-    ageGroup: '0–1 سنة',
-    skillCategory: 'الحركية الدقيقة',
+    ageGroup: 'أقل من سنة (0-12 شهر)',
+    skillCategory: 'مهارات حركية دقيقة',
     educationalBenefit:
       'يساعد الرضيع على فهم مفهوم بقاء الأشياء حتى عند اختفائها عن نظره، ويحفّز الفضول، التركيز الهادئ، والتنسيق بين حركة اليد والمعصم والعين.',
     availability: 'in_stock',
@@ -71,8 +89,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'صندوق الحروف اللمسية الخشبي',
     priceDzd: 4500,
     imageUrl: '/src/assets/images/product_arabic_sandpaper_letters_1795276105912.jpg',
-    ageGroup: '4–6 سنوات',
-    skillCategory: 'اللغة',
+    ageGroup: '4 سنوات (3-4 سنوات)',
+    skillCategory: 'لغة وحروف',
     educationalBenefit:
       'يربط بين الصوت وشكل الحرف عبر الذاكرة اللمسية والبصرية، مما يسهّل على الطفل تعلّم القراءة والكتابة المبكرة بأسلوب حسي ممتع وهادئ.',
     availability: 'in_stock',
@@ -84,8 +102,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'صينية العد والحلقات الخشبية (1 إلى 10)',
     priceDzd: 5200,
     imageUrl: '/src/assets/images/product_counting_beads_rods_1795276105980.jpg',
-    ageGroup: '4–6 سنوات',
-    skillCategory: 'الرياضيات',
+    ageGroup: '5 سنوات فما فوق (+5 سنوات)',
+    skillCategory: 'رياضيات وأرقام',
     educationalBenefit:
       'يجسّد الأرقام المجردة إلى كميات ملموسة، فيستوعب الطفل العلاقة بين الرمز والكمية ويتمرّن على الجمع والطرح البسيط بوضوح وثقة.',
     availability: 'out_of_stock',
@@ -98,8 +116,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     priceDzd: 9500,
     originalPriceDzd: 11800,
     imageUrl: '/src/assets/images/product_bundle_two_years_1795276105829.jpg',
-    ageGroup: '1–2 سنوات',
-    skillCategory: 'الحياة العملية',
+    ageGroup: 'سنتان (1-2 سنة)',
+    skillCategory: 'رزم تعليمية',
     educationalBenefit:
       'مجموعة متكاملة لعمر السنتين تجمع بين قوس التوازن الخشبي، لوح الأوتاد، صندوق فرز الأشكال الهندسية، وبرج الحلقات لتطوير الاستقلالية، التصنيف المنطقي، والمهارات الحركية الدقيقة في ركن واحد.',
     availability: 'in_stock',

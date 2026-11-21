@@ -13,6 +13,10 @@ import {
   Upload,
   XCircle,
 } from 'lucide-react';
+import {
+  AGE_GROUP_OPTIONS,
+  SKILL_CATEGORY_OPTIONS,
+} from '../config/storeDefaults';
 import {formatDzd} from '../data/wilayas';
 import type {
   AgeGroup,
@@ -36,19 +40,8 @@ interface AdminDashboardProps {
 
 type AdminTab = 'products' | 'orders' | 'settings';
 
-const AGE_GROUPS: AgeGroup[] = [
-  '0–1 سنة',
-  '1–2 سنوات',
-  '2–4 سنوات',
-  '4–6 سنوات',
-];
-const SKILLS: SkillCategory[] = [
-  'الحسّية',
-  'الحركية الدقيقة',
-  'اللغة',
-  'الرياضيات',
-  'الحياة العملية',
-];
+const AGE_GROUPS: AgeGroup[] = AGE_GROUP_OPTIONS;
+const SKILLS: SkillCategory[] = SKILL_CATEGORY_OPTIONS;
 
 const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   new: 'طلب جديد',
@@ -86,8 +79,10 @@ export function AdminDashboard({
   const [priceDzd, setPriceDzd] = useState('');
   const [originalPriceDzd, setOriginalPriceDzd] = useState('');
   const [imageUrl, setImageUrl] = useState('');
-  const [ageGroup, setAgeGroup] = useState<AgeGroup>('1–2 سنوات');
-  const [skillCategory, setSkillCategory] = useState<SkillCategory>('الحسّية');
+  const [ageGroup, setAgeGroup] = useState<AgeGroup>(AGE_GROUP_OPTIONS[1]);
+  const [skillCategory, setSkillCategory] = useState<SkillCategory>(
+    SKILL_CATEGORY_OPTIONS[1],
+  );
   const [educationalBenefit, setEducationalBenefit] = useState('');
   const [availability, setAvailability] = useState<AvailabilityStatus>('in_stock');
   const [itemType, setItemType] = useState<ItemType>('single');
@@ -190,8 +185,8 @@ export function AdminDashboard({
     setPriceDzd('');
     setOriginalPriceDzd('');
     setImageUrl('');
-    setAgeGroup('1–2 سنوات');
-    setSkillCategory('الحسّية');
+    setAgeGroup(AGE_GROUP_OPTIONS[1]);
+    setSkillCategory(SKILL_CATEGORY_OPTIONS[1]);
     setEducationalBenefit('');
     setAvailability('in_stock');
     setItemType('single');
@@ -665,10 +660,16 @@ export function AdminDashboard({
               </label>
 
               <label className="block space-y-1 text-xs">
-                <span className="font-semibold text-[#3D362E]">تصنيف المهارة *</span>
+                <span className="font-semibold text-[#3D362E]">الصنف *</span>
                 <select
                   value={skillCategory}
-                  onChange={(e) => setSkillCategory(e.target.value as SkillCategory)}
+                  onChange={(e) => {
+                    const nextSkill = e.target.value as SkillCategory;
+                    setSkillCategory(nextSkill);
+                    if (nextSkill === 'رزم تعليمية') {
+                      setItemType('bundle');
+                    }
+                  }}
                   className="w-full px-3 py-2.5 rounded-lg border border-[#DCD3C4] bg-[#FAF8F4] text-sm focus:outline-none focus:border-[#4A5D3F]"
                 >
                   {SKILLS.map((skill) => (
