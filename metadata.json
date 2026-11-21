@@ -1,0 +1,6 @@
+{
+  "name": "عالم مونتيسوري الجزائر | ألعاب مونتيسوري التعليمية",
+  "description": "متجر جزائري متخصص في ألعاب مونتيسوري الخشبية الأصلية للأطفال مع باقات عمرية مدروسة وتوصيل إلى 58 ولاية.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
